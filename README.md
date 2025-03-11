@@ -1,3 +1,5 @@
+[![SWUbanner](https://raw.githubusercontent.com/vshymanskyy/StandWithUkraine/main/banner-direct-single.svg)](https://stand-with-ukraine.pp.ua/)
+
 # bash-handbook
 
 [![CC 4.0][cc-image]][cc-url]
@@ -74,6 +76,7 @@ Currently, there are these translations of **bash-handbook**:
   - [Loop control](#loop-control)
 - [Functions](#functions)
   - [Debugging](#debugging)
+- [Reading User Input](#reading-user-input)
 - [Afterword](#afterword)
 - [Want to learn more?](#want-to-learn-more)
 - [Other resources](#other-resources)
@@ -261,7 +264,7 @@ Variables may also have _default_ values. We can define as such using the follow
 ```bash
  # if variables are empty, assign them default values
 : ${VAR:='default'}
-: ${$1:='first'}
+: ${1:='first'}
 # or
 FOO=${FOO:-'default'}
 ```
@@ -286,6 +289,9 @@ Also brace expansions may be used for creating ranges, which are iterated over i
 echo {0..5} # 0 1 2 3 4 5
 echo {00..8..2} # 00 02 04 06 08
 ```
+**Note: the rule here is {00..8..2} represents {start..end..steps}**
+
+`echo {0..10..3} # 0 3 6 9`
 
 ## Command substitution
 
@@ -916,6 +922,69 @@ set -x
 echo "xtrace is enabled"
 set +x
 echo "xtrace is turned off again"
+```
+
+# Reading User Input
+
+The user can enter data into shell variables using `read` commands.
+
+## `read`
+
+This command reads input from stdin into variables
+
+```bash
+read [-ers] [-a array] [-d delim] [-i text] [-n nchars] [-N nchars]
+     [-p prompt] [-t timeout] [-u fd] [variable1 ...] [variable2 ...]
+```
+
+If no variable names are provided, the user input is stored in the variable `$REPLY` by default.
+
+```bash
+#!/bin/bash
+
+read          #Waits for user input
+echo $REPLY   #Prints the text
+```
+
+| Short | Name        | Description                                            |
+| :---: | :---------- | :----------------------------------------------------- |
+| `-a`  | array | Store the words in an indexed [array](#arrays) named `$array` |
+| `-e` | | Read data from terminal character by character till the delimiter is reached |
+| `-d`  | delimiter | Set the delimiting character to delimiter specified<br>By default, newline('\n') is the delimiter |
+| `-n` | nchars | Stop reading when **n** characters or delimiter is read |
+| `-N` | nchars | Stops reading only when **n** charaters or EOF is read, **ignores delimiter** |
+| `-p` | prompt | Prints prompt string on console |
+| `-i` | interactive | Prints placeholder text which user can modify<br>Used in conjunction with `-e` |
+| `-r` | raw input | Disable shell interpretation of special charaters like $ and * |
+| `-s` | silent | Disable echo of characters read onto terminal |
+| `-t` | timout | Waits for certain amount of time before exitting |
+| `-u` | file descriptor | Reads input from file descriptor specified |
+
+```bash
+#!/bin/bash
+read -p 'Enter your name: ' name
+echo Hello, "$name"!
+
+read -sp 'Enter Password: ' password
+if [ "$password" == "1234" ]; then #Space around '[' is required
+  echo -e "\nSuccess!"
+else
+  echo -e "\nTry Again!"
+fi
+echo ""
+read -p "Enter numbers: " -a array
+echo ${array[2]}
+```
+
+This script will produce such output:
+
+```
+Enter your name: User1
+Enter password:
+Success #if password entered was 1234
+
+Enter numbers: 100 200 300 400
+300
 ```
 
 # Afterword
